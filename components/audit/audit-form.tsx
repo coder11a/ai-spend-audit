@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { useLocalStorage } from "@/hooks/use-local-storage";
 import { PRICING } from "@/lib/pricing";
 import { auditInputSchema, type AuditInputValues } from "@/lib/validation";
 import type { AuditResult, ToolId } from "@/types/audit";
 import { currency } from "@/utils/format";
 
-const defaultValues: AuditInputValues = {
-  teamSize: 8,
-  primaryUseCase: "coding",
+const defaultValues: any = {
+  teamSize: "",
+  primaryUseCase: "",
   tools: [],
   email: "",
   companyName: "",
@@ -38,9 +37,7 @@ const useCases = [
 
 export function AuditForm() {
   const router = useRouter();
-  const [saved, setSaved, hydrated] = useLocalStorage<AuditInputValues>("ai-spend-audit-form", defaultValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const didHydrate = useRef(false);
 
   const form = useForm<AuditInputValues>({
     resolver: zodResolver(auditInputSchema),
@@ -52,18 +49,6 @@ export function AuditForm() {
     control: form.control,
     name: "tools"
   });
-
-  useEffect(() => {
-    if (!hydrated || didHydrate.current) return;
-    const parsed = auditInputSchema.safeParse(saved);
-    form.reset(parsed.success ? parsed.data : defaultValues);
-    didHydrate.current = true;
-  }, [form, hydrated, saved]);
-
-  useEffect(() => {
-    const subscription = form.watch((value) => setSaved(value as AuditInputValues));
-    return () => subscription.unsubscribe();
-  }, [form, setSaved]);
 
   const watchedTools = useWatch({ control: form.control, name: "tools" });
   const currentSpend = useMemo(() => {
@@ -111,6 +96,9 @@ export function AuditForm() {
             <div className="space-y-2">
               <Label htmlFor="primaryUseCase">Primary use case</Label>
               <Select id="primaryUseCase" {...form.register("primaryUseCase")}>
+                <option value="" disabled>
+                  Select use case
+                </option>
                 {useCases.map(([value, label]) => (
                   <option key={value} value={value}>
                     {label}
@@ -131,7 +119,7 @@ export function AuditForm() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ toolId: "chatgpt", plan: "team", monthlySpend: 150, seats: 5 })}
+              onClick={() => append({ toolId: "" as any, plan: "" as any, monthlySpend: "" as any, seats: "" as any })}
             >
               <Plus className="h-4 w-4" /> Add
             </Button>
@@ -139,8 +127,9 @@ export function AuditForm() {
           <CardContent className="space-y-4">
             <AnimatePresence initial={false}>
               {fields.map((field, index) => {
-                const toolId = form.watch(`tools.${index}.toolId`) as ToolId;
-                const pricing = PRICING[toolId];
+                const toolId = form.watch(`tools.${index}.toolId`) as ToolId | "";
+                const pricing = toolId ? PRICING[toolId as ToolId] : null;
+                const currentPlan = form.watch(`tools.${index}.plan`);
                 return (
                   <motion.div
                     key={field.id}
@@ -153,6 +142,7 @@ export function AuditForm() {
                       <div className="space-y-2">
                         <Label>Tool</Label>
                         <Select {...form.register(`tools.${index}.toolId`)}>
+                          <option value="" disabled>Select tool</option>
                           {Object.entries(PRICING).map(([id, tool]) => (
                             <option key={id} value={id}>
                               {tool.name}
@@ -162,8 +152,9 @@ export function AuditForm() {
                       </div>
                       <div className="space-y-2">
                         <Label>Plan</Label>
-                        <Select {...form.register(`tools.${index}.plan`)}>
-                          {Object.entries(pricing.plans).map(([id, plan]) => (
+                        <Select {...form.register(`tools.${index}.plan`)} disabled={!pricing}>
+                          <option value="" disabled>Select plan</option>
+                          {pricing && Object.entries(pricing.plans).map(([id, plan]) => (
                             <option key={id} value={id} disabled={plan.label === "Not offered"}>
                               {plan.label}
                             </option>
@@ -192,14 +183,16 @@ export function AuditForm() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-label={`Remove ${pricing.name}`}
+                        aria-label={pricing ? `Remove ${pricing.name}` : "Remove tool"}
                         disabled={fields.length === 1}
                         onClick={() => remove(index)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="mt-3 text-xs text-muted-foreground">{pricing.plans[form.watch(`tools.${index}.plan`)].notes}</p>
+                    {pricing && currentPlan && pricing.plans[currentPlan as keyof typeof pricing.plans] && (
+                      <p className="mt-3 text-xs text-muted-foreground">{pricing.plans[currentPlan as keyof typeof pricing.plans].notes}</p>
+                    )}
                   </motion.div>
                 );
               })}
