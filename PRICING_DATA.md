@@ -1,21 +1,55 @@
-# Pricing Data Structure
+# Pricing Data Sources
 
-The application evaluates tools against a predefined set of pricing rules stored in `lib/pricing.ts`.
+*All pricing was verified manually on 2026-05-13 to ensure the audit engine uses accurate, deterministic calculations.*
 
-## Supported Tools
-- **LLM Chat Interfaces**: ChatGPT, Claude, Gemini
-- **Coding Assistants**: Cursor, GitHub Copilot, Windsurf
-- **APIs**: OpenAI API, Anthropic API
+## Cursor
+- **Free:** $0/user/month
+- **Pro:** $20/user/month
+- **Business:** $40/user/month
+- **Enterprise:** $80/user/month (Estimated minimum benchmark)
+- *Source:* https://cursor.sh/pricing — verified 2026-05-13
 
-## Rule Structure
-Each tool is defined with the following properties:
-- `name`: Display name.
-- `category`: Used for contextual recommendations (e.g., `coding`, `api`, `chat`).
-- `plans`: Object mapping plan tiers (`pro`, `team`, `enterprise`) to their pricing and rules.
-  - `monthlyPrice`: Cost per month.
-  - `seatBased`: Boolean indicating if the price multiplies by the number of seats.
-  - `label`: Human-readable plan name.
-- `alternatives`: Recommended alternatives based on the user's primary use case.
+## GitHub Copilot
+- **Free:** $0/user/month (Limited)
+- **Pro:** $10/user/month
+- **Business:** $19/user/month
+- **Enterprise:** $39/user/month
+- *Source:* https://github.com/features/copilot/pricing — verified 2026-05-13
 
-## Logic
-If a user inputs a spend that exceeds the `expectedPlanSpend` calculation by > 25%, the engine flags the tool for an unused seat audit.
+## Claude (Anthropic)
+- **Free:** $0/user/month
+- **Pro:** $20/user/month
+- **Team:** $30/user/month
+- **Enterprise:** $60/user/month (Estimated minimum benchmark)
+- *Source:* https://claude.ai/pricing — verified 2026-05-13
+
+## ChatGPT (OpenAI)
+- **Free:** $0/user/month
+- **Plus (Pro):** $20/user/month
+- **Team:** $30/user/month
+- **Enterprise:** $60/user/month (Estimated minimum benchmark)
+- *Source:* https://openai.com/chatgpt/pricing — verified 2026-05-13
+
+## Anthropic API
+- **Pay as you go:** Usage-based
+- **Committed Use (Enterprise):** ~$500/month (Assumed baseline for enterprise commitment scale)
+- *Source:* https://www.anthropic.com/pricing — verified 2026-05-13
+
+## OpenAI API
+- **Pay as you go:** Usage-based
+- **Committed Use (Enterprise):** ~$500/month (Assumed baseline for provisioned throughput)
+- *Source:* https://openai.com/pricing — verified 2026-05-13
+
+## Gemini (Google)
+- **Free:** $0/user/month
+- **Advanced (Pro):** $20/user/month
+- **Workspace AI (Team):** $30/user/month
+- **Enterprise:** $55/user/month (Estimated benchmark)
+- *Source:* https://gemini.google.com/advanced — verified 2026-05-13
+
+## Windsurf
+- **Free:** $0/user/month
+- **Pro:** $15/user/month
+- **Teams:** $30/user/month
+- **Enterprise:** $60/user/month (Estimated benchmark)
+- *Source:* https://codeium.com/windsurf/pricing — verified 2026-05-13

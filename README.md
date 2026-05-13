@@ -1,10 +1,10 @@
 # AI Spend Audit
 
+**Deployed App:** [https://ai-spend-audit.vercel.app](https://ai-spend-audit.vercel.app) (Placeholder URL)
+
 ## Project Overview
 
-AI Spend Audit is a lightweight SaaS app for startups that want to understand and reduce spend on AI tools. A team enters its current AI stack, seats, plans, monthly spend, and primary use case; the app returns right-sizing recommendations, estimated monthly and annual savings, and a shareable public report.
-
-The project is built as a production-oriented MVP: deterministic savings logic is kept in code, optional AI summarization improves the report narrative, and external services degrade gracefully during local development.
+AI Spend Audit is a lightweight SaaS app built for startup founders and CTOs who want to quickly identify AI tool sprawl and reduce unnecessary subscriptions. Users input their current AI stack, seat counts, and monthly spend to receive deterministic right-sizing recommendations and estimated cost savings. The platform generates an actionable, shareable report to help teams rationalize their tooling and cut costs immediately.
 
 ## Features
 
@@ -21,9 +21,9 @@ The project is built as a production-oriented MVP: deterministic savings logic i
 - Honeypot and rate limiting for abuse protection.
 - Vitest coverage for the audit engine.
 
-## Setup
+## Quick Start
 
-Install dependencies:
+**1. Install dependencies:**
 
 ```bash
 npm install
@@ -32,18 +32,18 @@ npm install
 Create `.env.local` at the repo root with the variables you need for the services you want to enable:
 
 ```bash
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-OPENAI_API_KEY=
-RESEND_API_KEY=
-RESEND_FROM_EMAIL="AI Spend Audit <audit@example.com>"
+NEXT_PUBLIC_APP_URL=https://ai-spend-audit.vercel.app
+NEXT_PUBLIC_SUPABASE_URL="Your Supabase URL"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="Your Supabase Anon Key"
+SUPABASE_SERVICE_ROLE_KEY="Your Supabase Service Role Key"
+OPENAI_API_KEY="Your OpenAI API Key"
+RESEND_API_KEY="Your Resend API Key"
+RESEND_FROM_EMAIL="Your Email Address"
 RATE_LIMIT_MAX=8
 RATE_LIMIT_WINDOW_SECONDS=60
 ```
 
-Run the app:
+**3. Run locally:**
 
 ```bash
 npm run dev
@@ -59,32 +59,38 @@ npm run build
 
 Create Supabase tables by running `supabase/schema.sql` in the Supabase SQL editor. The app can run without Supabase, OpenAI, or Resend; missing services fall back to local memory, template summaries, or skipped email delivery.
 
-## Deployment Guide
+**4. Deploy:**
 
 1. Create a Supabase project and run `supabase/schema.sql`.
 2. Configure production environment variables in the host, including `NEXT_PUBLIC_APP_URL`, Supabase keys, `OPENAI_API_KEY`, and Resend values.
 3. Deploy to a Next.js-compatible platform such as Vercel.
 4. Set the production domain in `NEXT_PUBLIC_APP_URL` so share links and emails point to the live app.
 5. Run `npm run build` in CI before deployment.
-6. Smoke test `/`, `/audit`, one generated report page, and lead capture after deploy.
 
 ## Screenshots
 
-Place final screenshots in a `/screenshots` directory when available.
+*(Placeholder images. Replace paths once screenshots are captured)*
 
-- Landing page: `screenshots/landing.png`
-- Audit form: `screenshots/audit-form.png`
-- Results dashboard: `screenshots/results-dashboard.png`
-- Public report: `screenshots/public-report.png`
+![Landing Page](./screenshots/landing.png)
+*Figure 1: The Landing Page*
+
+![Audit Form](./screenshots/audit-form.png)
+*Figure 2: The Audit Form*
+
+![Results Dashboard](./screenshots/results-dashboard.png)
+*Figure 3: Results Dashboard*
+
+![Public Report](./screenshots/public-report.png)
+*Figure 4: Shareable Public Report*
 
 ## Architecture Summary
 
 The app uses Next.js App Router for pages and API routes. Client components collect audit input and render interactive dashboards. Server routes validate submissions with Zod, rate-limit requests, calculate savings through `lib/audit-engine.ts`, optionally call OpenAI for a summary, persist to Supabase, and send Resend emails. Public report pages read by `shareId` and render a sanitized `PublicReport`.
 
-## Engineering Tradeoffs
+## Decisions (Trade-offs)
 
-1. Deterministic savings engine before model-generated advice: recommendations are predictable and testable, but less nuanced than a fully dynamic advisor.
-2. In-memory fallback storage: local demos work without infrastructure, but reports are not durable across restarts unless Supabase is configured.
-3. No authentication in the MVP: the audit funnel has less friction, but users cannot manage historical reports yet.
-4. Hardcoded pricing rules: calculations are fast and transparent, but pricing needs periodic review.
-5. Optional async email delivery: API responses stay fast, but email failures are logged instead of blocking the user flow.
+1. **Deterministic savings engine before model-generated advice**: Recommendations are predictable and testable, but less nuanced than a fully dynamic LLM advisor.
+2. **In-memory fallback storage**: Local demos work without infrastructure, but reports are not durable across restarts unless Supabase is configured.
+3. **No authentication in the MVP**: The audit funnel has less friction for immediate use, but users cannot manage historical reports yet.
+4. **Hardcoded pricing rules**: Calculations are extremely fast, cheap, and transparent, but pricing logic needs periodic manual review to stay up to date.
+5. **Optional async email delivery**: API responses stay fast and avoid blocking the user flow, but if Resend fails, email errors are only logged and not surfaced to the user.
