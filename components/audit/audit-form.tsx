@@ -21,10 +21,7 @@ import { currency } from "@/utils/format";
 const defaultValues: AuditInputValues = {
   teamSize: 8,
   primaryUseCase: "coding",
-  tools: [
-    { toolId: "cursor", plan: "team", monthlySpend: 320, seats: 8 },
-    { toolId: "openai-api", plan: "payg", monthlySpend: 900, seats: 1 }
-  ],
+  tools: [],
   email: "",
   companyName: "",
   role: "",
