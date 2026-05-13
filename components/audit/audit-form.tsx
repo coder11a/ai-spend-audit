@@ -17,7 +17,7 @@ import { auditInputSchema, type AuditInputValues } from "@/lib/validation";
 import type { AuditResult, ToolId } from "@/types/audit";
 import { currency } from "@/utils/format";
 
-const defaultValues: any = {
+const defaultValues: Record<string, unknown> = {
   teamSize: "",
   primaryUseCase: "",
   tools: [],
@@ -119,7 +119,7 @@ export function AuditForm() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => append({ toolId: "" as any, plan: "" as any, monthlySpend: "" as any, seats: "" as any })}
+              onClick={() => append({ toolId: "" as unknown as ToolId, plan: "" as unknown as "free", monthlySpend: "" as unknown as number, seats: "" as unknown as number })}
             >
               <Plus className="h-4 w-4" /> Add
             </Button>
