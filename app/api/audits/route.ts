@@ -34,9 +34,11 @@ export async function POST(request: NextRequest) {
     const publicReport = toPublicReport(parsed.data, result);
 
     let persisted = false;
+    let auditId: string | null = null;
     try {
       const saved = await saveAudit(parsed.data, result, publicReport);
       persisted = saved.persisted;
+      auditId = saved.auditId;
     } catch (error) {
       console.error("Failed to persist audit", error);
     }
@@ -54,7 +56,7 @@ export async function POST(request: NextRequest) {
       ).catch((error) => console.error("Failed to send audit email", error));
     }
 
-    return NextResponse.json({ result, persisted });
+    return NextResponse.json({ result, persisted, auditId });
   } catch (error) {
     console.error("Failed to create audit", error);
     return NextResponse.json({ error: "Unable to create audit right now." }, { status: 500 });

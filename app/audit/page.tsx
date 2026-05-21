@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
+import { redirect } from "next/navigation";
 import { AuditForm } from "@/components/audit/audit-form";
 
 export const metadata: Metadata = {
@@ -6,7 +7,14 @@ export const metadata: Metadata = {
   description: "Enter AI tools, plans, spend, and team size to generate your AI Spend Audit."
 };
 
-export default function AuditPage() {
+export default async function AuditPage({
+  searchParams
+}: {
+  searchParams: Promise<{ auditId?: string }>
+}) {
+  const { auditId } = await searchParams;
+  if (auditId) redirect(`/rerun/${auditId}` as Route);
+
   return (
     <div className="bg-[linear-gradient(180deg,hsl(var(--secondary)/0.45),hsl(var(--background))_360px)]">
       <div className="container py-12">

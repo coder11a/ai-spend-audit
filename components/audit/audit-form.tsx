@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { PRICING } from "@/lib/pricing";
 import { auditInputSchema, type AuditInputValues } from "@/lib/validation";
-import type { AuditResult, ToolId } from "@/types/audit";
+import type { CreateAuditResponse, ToolId } from "@/types/audit";
 import { currency } from "@/utils/format";
 
 const defaultValues: Record<string, unknown> = {
@@ -64,10 +64,13 @@ export function AuditForm() {
         body: JSON.stringify(values)
       });
 
-      const payload = (await response.json()) as { result?: AuditResult; error?: string };
+      const payload = (await response.json()) as CreateAuditResponse;
       if (!response.ok || !payload.result) throw new Error(payload.error || "Unable to create audit");
 
-      window.sessionStorage.setItem(`audit:${payload.result.shareId}`, JSON.stringify({ input: values, result: payload.result }));
+      window.sessionStorage.setItem(
+        `audit:${payload.result.shareId}`,
+        JSON.stringify({ auditId: payload.auditId ?? null, input: values, result: payload.result })
+      );
       toast.success("Audit complete", { description: "Your savings report is ready." });
       router.push(`/audit/${payload.result.shareId}`);
     } catch (error) {
